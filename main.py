@@ -89,10 +89,31 @@ ORDER BY numpurchasers DESC
 
 # STEP 9
 # Replace None with your code
-df_customers = None
+df_customers = pd.read_sql("""
+SELECT COUNT(c.customerNumber) AS n_customers, o.officeCode, o.city
+FROM offices o
+LEFT JOIN employees e ON o.officeCode = e.officeCode
+LEFT JOIN customers c ON e.employeeNumber = c.salesRepEmployeeNumber
+GROUP BY o.officeCode, o.city
+""", conn)
 
 # STEP 10
 # Replace None with your code
-df_under_20 = None
+df_under_20 = pd.read_sql("""
+SELECT DISTINCT e.employeeNumber, e.firstName, e.lastName, o.city, o.officeCode
+FROM employees e
+JOIN offices o ON e.officeCode = o.officeCode
+JOIN customers c ON e.employeeNumber = c.salesRepEmployeeNumber
+JOIN orders ord ON c.customerNumber = ord.customerNumber
+JOIN orderdetails od ON ord.orderNumber = od.orderNumber
+WHERE od.productCode IN (
+    SELECT od2.productCode
+    FROM orderdetails od2
+    JOIN orders ord2 ON od2.orderNumber = ord2.orderNumber
+    GROUP BY od2.productCode
+    HAVING COUNT(DISTINCT ord2.customerNumber) < 20
+)
+ORDER BY e.lastName, e.firstName
+""", conn)
 
 conn.close()
