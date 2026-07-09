@@ -68,11 +68,24 @@ ORDER BY num_customers DESC
 
 # STEP 7
 # Replace None with your code
-df_product_sold = None
+df_product_sold = pd.read_sql("""
+SELECT p.productName, COUNT(od.orderNumber) AS numorders, SUM(od.quantityOrdered) AS totalunits
+FROM products p
+JOIN orderdetails od ON p.productCode = od.productCode
+GROUP BY p.productCode, p.productName
+ORDER BY totalunits DESC
+""", conn)
 
 # STEP 8
 # Replace None with your code
-df_total_customers = None
+df_total_customers = pd.read_sql("""
+SELECT p.productName, p.productCode, COUNT(DISTINCT o.customerNumber) AS numpurchasers
+FROM products p
+JOIN orderdetails od ON p.productCode = od.productCode
+JOIN orders o ON od.orderNumber = o.orderNumber
+GROUP BY p.productCode, p.productName
+ORDER BY numpurchasers DESC
+""", conn)
 
 # STEP 9
 # Replace None with your code
