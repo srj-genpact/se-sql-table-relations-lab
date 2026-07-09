@@ -48,11 +48,23 @@ ORDER BY contactLastName
 
 # STEP 5
 # Replace None with your code
-df_payment = None
+df_payment = pd.read_sql("""
+SELECT c.contactFirstName, c.contactLastName, p.amount, p.paymentDate
+FROM customers c
+JOIN payments p ON c.customerNumber = p.customerNumber
+ORDER BY CAST(p.amount AS REAL) DESC
+""", conn)
 
 # STEP 6
 # Replace None with your code
-df_credit = None
+df_credit = pd.read_sql("""
+SELECT e.employeeNumber, e.firstName, e.lastName, COUNT(c.customerNumber) AS num_customers
+FROM employees e
+JOIN customers c ON e.employeeNumber = c.salesRepEmployeeNumber
+GROUP BY e.employeeNumber, e.firstName, e.lastName
+HAVING AVG(c.creditLimit) > 90000
+ORDER BY num_customers DESC
+""", conn)
 
 # STEP 7
 # Replace None with your code
